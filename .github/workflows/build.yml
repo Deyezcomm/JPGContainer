@@ -15,8 +15,6 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v5
-        with:
-          persist-credentials: false
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -28,21 +26,27 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pyinstaller
 
-      - name: Build Portable EXE
+      - name: Build Application
         run: |
-          pyinstaller --onefile --windowed --name JPGContainer src/main.py
+          pyinstaller ^
+            --clean ^
+            --noconfirm ^
+            --windowed ^
+            --name JPGContainer ^
+            src/main.py
 
-      - name: Check EXE
+      - name: Verify Build
+        shell: pwsh
         run: |
-          if (!(Test-Path "dist\JPGContainer.exe")) {
-            Write-Error "JPGContainer.exe tidak ditemukan!"
+          if (!(Test-Path "dist\JPGContainer\JPGContainer.exe")) {
+            Write-Error "JPGContainer.exe tidak ditemukan."
             exit 1
           }
 
-          Write-Host "JPGContainer.exe berhasil dibuat."
+          Write-Host "Build berhasil."
 
-      - name: Upload EXE
+      - name: Upload Application
         uses: actions/upload-artifact@v4
         with:
           name: JPGContainer-Windows
-          path: dist/JPGContainer.exe
+          path: dist/JPGContainer
